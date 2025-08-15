@@ -1,12 +1,15 @@
 import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS  # <-- Import CORS
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # <-- Enable CORS for all domains. For production, restrict to your frontend URL.
 
-# In-memory SQLite
+# Allow CORS for your React frontend URL
+# For development, "*" works. In production, replace with your React URL.
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+# In-memory SQLite DB
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -26,7 +29,7 @@ with app.app_context():
 
 @app.route('/')
 def home():
-    return "Hello, World!"
+    return "Hello from Flask Backend!"
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -51,7 +54,7 @@ def register():
 
     return jsonify({"message": "User registered successfully", "user": {"name": name, "email": email}}), 201
 
-@app.route('/users')
+@app.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
     return jsonify([{"id": u.id, "name": u.name, "email": u.email, "agreed_to_terms": u.agreed_to_terms} for u in users])
