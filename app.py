@@ -1,11 +1,10 @@
-# app.py
 import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# In-memory SQLite database
+# In-memory SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -19,17 +18,14 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     agreed_to_terms = db.Column(db.Boolean, default=False)
 
-# Initialize DB and create tables
-@app.before_first_request
-def setup():
+# Create tables at startup
+with app.app_context():
     db.create_all()
 
-# Home route
 @app.route('/')
 def home():
     return "Hello, World!"
 
-# Registration endpoint
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -44,7 +40,6 @@ def register():
     if not (name and email and password and agreed_to_terms):
         return jsonify({"error": "All fields required and terms must be agreed"}), 400
 
-    # Check if email already exists
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 400
 
@@ -54,7 +49,6 @@ def register():
 
     return jsonify({"message": "User registered successfully", "user": {"name": name, "email": email}}), 201
 
-# List all users (for testing)
 @app.route('/users')
 def get_users():
     users = User.query.all()
