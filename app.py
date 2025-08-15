@@ -1,8 +1,10 @@
 import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS  # <-- Import CORS
 
 app = Flask(__name__)
+CORS(app)  # <-- Enable CORS for all domains. For production, restrict to your frontend URL.
 
 # In-memory SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
